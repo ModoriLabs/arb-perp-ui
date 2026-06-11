@@ -23,6 +23,7 @@ import { usePerpOrderHistory } from "@/lib/hooks/usePerpOrderHistory"
 import { useCancelPerpOrder } from "@/lib/hooks/useCancelPerpOrder"
 import { useCancelAllPerpOrders } from "@/lib/hooks/useCancelAllPerpOrders"
 import { tradingToast } from "@/lib/utils/toast"
+import { getAssetName } from "@/lib/utils"
 import type { PerpOrder, Trade } from "@/types"
 import { PositionsTab } from "@/components/history/PositionsTab"
 import { AssetsTab } from "@/components/history/AssetsTab"
@@ -73,7 +74,12 @@ export function HistorySection() {
   const positionsCount = positions.filter(
     (p) => parseFloat(p.size) !== 0
   ).length
-  const assetsCount = balance?.balances?.length ?? 0
+  // Count only assets we render in AssetsTab — i.e. tokens with display
+  // metadata. The backend returns an entry per registered deposit token
+  // (incl. unmapped "Unknown" ones we hide), so a raw length over-counts.
+  const assetsCount =
+    balance?.balances?.filter((b) => getAssetName(b.asset_id) !== "Unknown")
+      .length ?? 0
   const openOrdersCount = openOrdersData?.orders?.length ?? 0
 
   // Filter by side
