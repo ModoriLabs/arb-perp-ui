@@ -44,7 +44,7 @@ import { usePendingDepositStore } from "@/lib/stores/usePendingDepositStore"
 import { useBalance } from "@/lib/hooks/useBalance"
 import { useAccount } from "@/lib/hooks/useAccount"
 import { useSelectedPair } from "@/lib/stores"
-import { sepolia, arbitrumSepolia } from "@reown/appkit/networks"
+import { arbitrumSepolia } from "@reown/appkit/networks"
 import {
   CONTRACTS,
   getTokenAddress,
@@ -69,7 +69,7 @@ function MintButton({ address }: { address: `0x${string}` }) {
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <p>Mint test tokens (EL / USDT)</p>
+            <p>Mint test ARB</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -84,9 +84,6 @@ const NAV_ITEMS = [
   // than at `/` — means clicking it from another section feels like
   // "return to where I was" rather than "reset to the global default".
   { href: "/trade", label: "Trade" },
-  { href: "/pools", label: "Pools" },
-  { href: "/staking", label: "Staking" },
-  { href: "/stats", label: "Stats" },
 ] as const
 
 function isNavActive(href: string, pathname: string | null) {
@@ -131,14 +128,12 @@ export function Header() {
   const isInsuranceFund =
     accountData?.accounts?.[0]?.l1_address ===
     "0x0000000000000000000000000000000000000000"
-  // Multi-token + multi-chain (ELP-133 / ELP-230): wallet + perp balances
-  // follow the active market's quote token, which itself lives on a specific
-  // chain (EL/USDT on Sepolia, ARB on Arbitrum Sepolia). Pin the read to
-  // *that* chain so the pill keeps showing the right balance even when the
-  // wallet is currently connected to a different network.
+  // Pin the read to the chain hosting the active market's quote token so
+  // the pill keeps showing the right balance even when the wallet is on a
+  // different network.
   const selectedPair = useSelectedPair()
   const quoteChainId =
-    ASSET_ID_TO_CHAIN_ID[selectedPair.quote_currency] ?? sepolia.id
+    ASSET_ID_TO_CHAIN_ID[selectedPair.quote_currency] ?? arbitrumSepolia.id
   const quoteTokenAddress =
     getTokenAddress(quoteChainId, selectedPair.quote_currency) ??
     CONTRACTS[quoteChainId]?.collateralToken
@@ -195,61 +190,68 @@ export function Header() {
     setMounted(true)
   }, [])
 
-  // Track if we've attempted login for current connection
-  const hasAttemptedLogin = useRef(false)
-  const prevStatus = useRef(status)
+  // Track which connected address we've already kicked off login for.
+  // Keying by address (not a bare boolean) lets us re-login after a real
+  // account switch while still de-duping prompts within a single session.
+  const loginAttemptedAddress = useRef<string | null>(null)
 
   const handleWithdraw = () => {
     setWithdrawOpen(true)
   }
 
-  // Auto-login when wallet connects
+  // Auto-login when wallet connects.
+  //
+  // Two things keep the signTypedData prompt from firing 2–3 times per
+  // connect:
+  //
+  //   1. Per-address guard. wagmi's `status` flickers
+  //      (connected → reconnecting/disconnected → connected) while AppKit
+  //      adds or switches the network. We only schedule a login the first
+  //      time we see a given connected `address`, so the flicker can't
+  //      re-trigger it.
+  //   2. Cleanup that cancels the still-pending login. The login is delayed
+  //      300 ms; if `status`/`address` change again inside that window the
+  //      effect re-runs and its cleanup clears the previously scheduled
+  //      timeout, guaranteeing only the *last* scheduled login survives.
+  //
+  // We only clear the guard on a genuine disconnect (`status` is
+  // "disconnected" or `address` is gone) — never on the transient
+  // "connecting"/"reconnecting" states — so a flicker never re-arms it.
   useEffect(() => {
-    // Reset flag when disconnected or auth cleared
-    if (status === "disconnected" || !isAuthenticated) {
-      hasAttemptedLogin.current = false
-    }
-
-    // Wait for auth state to be ready (cookie checked after hydration)
     if (!isAuthReady) return
 
-    // Skip if already authenticated (checked via logged_in cookie)
+    if (status === "disconnected" || !address) {
+      loginAttemptedAddress.current = null
+      return
+    }
+
+    // Ignore transient "connecting"/"reconnecting" — wait for a stable
+    // "connected" before prompting.
+    if (status !== "connected") return
+
     if (isAuthenticated) {
-      hasAttemptedLogin.current = true
+      loginAttemptedAddress.current = address
       return
     }
 
-    // Skip if refresh is in progress (AuthProvider is attempting to refresh token)
     if (isRefreshing) return
+    if (isLoggingIn) return
+    if (loginAttemptedAddress.current === address) return
 
-    // Detect transition to 'connected' state
-    const justConnected =
-      prevStatus.current !== "connected" && status === "connected"
-    prevStatus.current = status
-
-    // Trigger login when freshly connected
-    if (justConnected && !hasAttemptedLogin.current) {
-      hasAttemptedLogin.current = true
-      setTimeout(() => {
-        login()
-      }, 300)
-      return
-    }
-
-    // Re-login when auth is lost while still connected (e.g. 401 refresh failure)
-    if (
-      status === "connected" &&
-      !isAuthenticated &&
-      !hasAttemptedLogin.current &&
-      isAuthReady &&
-      !isRefreshing
-    ) {
-      hasAttemptedLogin.current = true
-      setTimeout(() => {
-        login()
-      }, 500)
-    }
-  }, [status, isAuthenticated, isRefreshing, isAuthReady, login])
+    loginAttemptedAddress.current = address
+    const timeoutId = setTimeout(() => {
+      login()
+    }, 300)
+    return () => clearTimeout(timeoutId)
+  }, [
+    status,
+    address,
+    isAuthenticated,
+    isRefreshing,
+    isAuthReady,
+    isLoggingIn,
+    login,
+  ])
 
   // Auto-login when account is switched (after logout completes)
   useEffect(() => {
@@ -260,10 +262,14 @@ export function Header() {
       !isLoggingIn
     ) {
       clearAccountSwitched()
-      // Small delay to ensure logout is fully processed
-      setTimeout(() => {
+      // Small delay to ensure logout is fully processed. Cleanup cancels a
+      // still-pending prompt if this effect re-runs (e.g. React 18 StrictMode
+      // double-invoke in dev, or another status change), preventing a
+      // duplicate signature request.
+      const timeoutId = setTimeout(() => {
         login()
       }, 300)
+      return () => clearTimeout(timeoutId)
     }
   }, [
     accountSwitched,
@@ -359,7 +365,7 @@ export function Header() {
                     <Button size="sm" variant="outline" disabled={isLoggingIn}>
                       {isLoggingIn
                         ? "Signing..."
-                        : `${formatAddress(address)}${chainId !== sepolia.id && chainId !== arbitrumSepolia.id ? " (Wrong Network)" : ""}`}
+                        : `${formatAddress(address)}${chainId !== arbitrumSepolia.id ? " (Wrong Network)" : ""}`}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent align="end" className="w-64 p-3">
