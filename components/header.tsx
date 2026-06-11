@@ -190,56 +190,56 @@ export function Header() {
     setMounted(true)
   }, [])
 
-  // Track which connected address we've already kicked off login for.
-  // Keying by address (not a bare boolean) lets us re-login after a real
-  // account switch while still de-duping prompts within a single session.
-  const loginAttemptedAddress = useRef<string | null>(null)
+  // Whether we've already fired the login prompt for the *current*
+  // connected-but-unauthenticated episode. Set at the moment login actually
+  // fires (not when it's scheduled) and re-armed (set false) the moment we
+  // become authenticated or the wallet disconnects, so a later loss of the
+  // session can prompt again.
+  const loginFiredRef = useRef(false)
 
   const handleWithdraw = () => {
     setWithdrawOpen(true)
   }
 
-  // Auto-login when wallet connects.
+  // Auto-login when the wallet is connected but we're not authenticated.
   //
-  // Two things keep the signTypedData prompt from firing 2–3 times per
-  // connect:
+  // Design notes (each guards against a specific failure we hit before):
   //
-  //   1. Per-address guard. wagmi's `status` flickers
-  //      (connected → reconnecting/disconnected → connected) while AppKit
-  //      adds or switches the network. We only schedule a login the first
-  //      time we see a given connected `address`, so the flicker can't
-  //      re-trigger it.
-  //   2. Cleanup that cancels the still-pending login. The login is delayed
-  //      300 ms; if `status`/`address` change again inside that window the
-  //      effect re-runs and its cleanup clears the previously scheduled
-  //      timeout, guaranteeing only the *last* scheduled login survives.
+  //   • Re-arm on auth/disconnect. We set `loginFiredRef = false` whenever
+  //     we're authenticated, disconnected, or have no address. This is the
+  //     fix for the "connected but no signature prompt" bug: a stale
+  //     `logged_in` cookie makes us briefly look authenticated, the backend
+  //     session is actually dead, a 401 → failed refresh flips us back to
+  //     unauthenticated WITHOUT a disconnect — and the old per-address lock
+  //     never re-prompted, so deposit/withdraw stayed disabled until the
+  //     user manually reconnected. Re-arming lets that de-auth re-prompt.
   //
-  // We only clear the guard on a genuine disconnect (`status` is
-  // "disconnected" or `address` is gone) — never on the transient
-  // "connecting"/"reconnecting" states — so a flicker never re-arms it.
+  //   • Fire-time guard. `loginFiredRef` is flipped true *inside* the
+  //     timeout right before `login()`, not when the timeout is scheduled.
+  //     Combined with the cleanup below, transient `status` flicker
+  //     (connected → reconnecting → connected during AppKit chain-switch)
+  //     re-schedules the debounce instead of being permanently blocked.
+  //
+  //   • Debounce + cleanup. The 300 ms timeout is cancelled on every re-run,
+  //     so only the last scheduled login survives — preventing the 2–3
+  //     duplicate signature prompts per connect.
   useEffect(() => {
     if (!isAuthReady) return
 
-    if (status === "disconnected" || !address) {
-      loginAttemptedAddress.current = null
+    // Not in a "needs login" state — re-arm for a future session loss.
+    if (status === "disconnected" || !address || isAuthenticated) {
+      loginFiredRef.current = false
       return
     }
 
-    // Ignore transient "connecting"/"reconnecting" — wait for a stable
-    // "connected" before prompting.
+    // Ignore transient "connecting"/"reconnecting"; wait for a refresh
+    // attempt or an in-flight login to settle before prompting.
     if (status !== "connected") return
+    if (isRefreshing || isLoggingIn) return
+    if (loginFiredRef.current) return
 
-    if (isAuthenticated) {
-      loginAttemptedAddress.current = address
-      return
-    }
-
-    if (isRefreshing) return
-    if (isLoggingIn) return
-    if (loginAttemptedAddress.current === address) return
-
-    loginAttemptedAddress.current = address
     const timeoutId = setTimeout(() => {
+      loginFiredRef.current = true
       login()
     }, 300)
     return () => clearTimeout(timeoutId)
