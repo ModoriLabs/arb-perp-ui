@@ -51,7 +51,7 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET || ""
 
 console.log("API_URL", API_URL)
 
-const PERP_USD_ID = 5382
+const PERP_USD_ID = 11841
 const DEPOSIT_AMOUNT = "1000000000000"
 
 // Store authenticated accounts (buyer + seller)

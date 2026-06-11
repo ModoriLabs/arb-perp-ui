@@ -34,7 +34,7 @@ import { useHistoryTabStore, useSelectedPair } from "@/lib/stores"
 import { TokenSelect } from "@/components/trading/token-select"
 import { ASSET_IDS } from "@/lib/constants/assets"
 import { getAssetName } from "@/lib/utils"
-import type { VerifyDepositResponse } from "@/types"
+import type { AccountResponse, VerifyDepositResponse } from "@/types"
 
 interface DepositModalProps {
   open: boolean
@@ -71,19 +71,13 @@ export function DepositModal({
     []
   )
 
-  // Default the token picker to the *currently-traded market's* quote
-  // collateral instead of a hardcoded EL. Background: opening Deposit on
-  // a BTC-PERP-ARB chart used to default to EL, which (a) sits on a
-  // different chain (Sepolia) than the user's wallet was almost
-  // certainly on (Arbitrum Sepolia for ARB trading), forcing an
-  // unexpected "Switch network & deposit" hop, and (b) tops up the
-  // wrong collateral even after the switch — the user wanted ARB.
-  // Matching the active market lets the common "I'm trading X, top up
-  // X" flow proceed without any chain-switch or token-picker fiddling.
+  // Default the token picker to the currently-traded market's quote
+  // collateral so the common "I'm trading X, top up X" flow proceeds
+  // without any chain-switch or token-picker fiddling.
   const pair = useSelectedPair()
   const initialAssetId = tokenIds.includes(pair.quote_currency)
     ? pair.quote_currency
-    : ASSET_IDS.EL
+    : ASSET_IDS.ARB
   const [selectedAssetId, setSelectedAssetId] = useState<number>(initialAssetId)
 
   // Re-sync to the current market each time the modal opens. Otherwise
@@ -94,7 +88,7 @@ export function DepositModal({
       setSelectedAssetId(
         tokenIds.includes(pair.quote_currency)
           ? pair.quote_currency
-          : ASSET_IDS.EL
+          : ASSET_IDS.ARB
       )
     }
   }, [open, pair.quote_currency, tokenIds])
@@ -379,6 +373,28 @@ export function DepositModal({
         onOpenChange(false)
         refetchWalletBalance()
         tradingToast.depositSuccess()
+
+        // Refresh the perp account so `Avbl` reflects the credited deposit.
+        // The ["account"] query backs the available balance everywhere
+        // (header pill + trading form). The catch: the backend only credits
+        // the perp balance AFTER the deposit tx reaches enough block
+        // confirmations, which lags the verify response by a few seconds. A
+        // single refetch here reads the pre-credit balance, so Avbl appeared
+        // to update "only on reload". Poll a bounded number of times until
+        // the credited balance actually shows up, then stop.
+        const readAvailable = () =>
+          queryClient
+            .getQueryData<AccountResponse>(["account"])
+            ?.accounts?.[0]?.balances?.find(
+              (b) => b.asset_id === selectedAssetId
+            )?.available
+
+        const before = readAvailable()
+        for (let attempt = 0; attempt < 12; attempt++) {
+          await queryClient.refetchQueries({ queryKey: ["account"] })
+          if (readAvailable() !== before) break
+          await new Promise((r) => setTimeout(r, 5000))
+        }
       })
       .catch((error) => {
         onOpenChange(false)
@@ -399,6 +415,7 @@ export function DepositModal({
     setActiveTab,
     queryClient,
     refetchWalletBalance,
+    selectedAssetId,
   ])
 
   // --- Handle wallet rejection errors via toast ---

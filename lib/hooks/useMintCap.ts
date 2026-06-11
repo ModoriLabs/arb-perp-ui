@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { useReadContract } from "wagmi"
 import { formatUnits, parseUnits } from "viem"
-import { sepolia } from "viem/chains"
+import { arbitrumSepolia } from "viem/chains"
 import { CONTRACTS } from "@/lib/contracts/addresses"
 import { MockTokenAbi } from "@/lib/contracts/abi/MockTokenAbi"
 import { ASSET_IDS } from "@/lib/constants/assets"
@@ -52,7 +52,7 @@ export function useMintCap(params: {
   const { data: balanceData, isError: balError } = useBalance()
   const { data: positionsData, isError: posError } = usePositions()
   const { data: onchainBalance, isError: chainError } = useReadContract({
-    address: CONTRACTS[sepolia.id].collateralToken,
+    address: CONTRACTS[arbitrumSepolia.id].collateralToken,
     abi: MockTokenAbi,
     functionName: "balanceOf",
     args: [address ?? ZERO_ADDRESS],
@@ -80,11 +80,9 @@ export function useMintCap(params: {
     }
 
     const capRaw = parseUnits(String(MINT_CAP), decimals)
-    // The mint cap is enforced against the EL collateral token (the on-chain
-    // MockToken). With multi-token balances we must target EL explicitly rather
-    // than balances[0], whose order is not guaranteed.
+    // The mint cap is enforced against the MockARB collateral token.
     const balance = balanceData.balances.find(
-      (b) => b.asset_id === ASSET_IDS.EL
+      (b) => b.asset_id === ASSET_IDS.ARB
     )
     const availableRaw = safeParseUnits(balance?.available ?? "0", decimals)
     const lockedRaw = safeParseUnits(balance?.locked ?? "0", decimals)

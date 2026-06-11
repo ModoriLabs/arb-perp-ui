@@ -152,7 +152,7 @@ Content-Type: application/json
 X-Api-Key: {{adminKey}}
 
 {
-  "asset_id": 5382,
+  "asset_id": 11841,
   "amount": "10000"
 }
 

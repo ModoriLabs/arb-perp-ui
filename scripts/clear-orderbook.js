@@ -39,7 +39,7 @@ const API_URL =
   "http://localhost:3001"
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || ""
-const PERP_USD_ID = 5382
+const PERP_USD_ID = 11841
 const DEPOSIT_AMOUNT = "10000000000"
 
 const MARKET_IDS = { "BTC-PERP": 100, "ETH-PERP": 101 }

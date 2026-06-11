@@ -149,9 +149,8 @@ export function ClosePositionModal({
     return pair?.id ?? 0
   }, [pairs, marketSymbol])
 
-  // Quote token for this position (multi-token, ELP-133): margin/value/PnL are
-  // denominated in it (EL$ for BTC-PERP, USDT for BTC-PERP-USDT). Read the
-  // server-authoritative id straight off the position rather than by market name.
+  // Quote token for this position — margin/value/PnL are denominated in it.
+  // Read the server-authoritative id straight off the position rather than by market name.
   const quoteSymbol =
     position != null ? getAssetName(position.quote_asset_id) : ""
 

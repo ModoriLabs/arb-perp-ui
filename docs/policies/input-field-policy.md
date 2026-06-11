@@ -22,12 +22,12 @@
 
 ### 2.1 입력 모드
 
-사용자는 **base** (BTC, ETH) 또는 **quote** (EL$) 모드를 선택할 수 있다. 내부적으로 `amount` (base 수량)가 항상 store에 저장된다.
+사용자는 **base** (BTC, ETH) 또는 **quote** (ARB) 모드를 선택할 수 있다. 내부적으로 `amount` (base 수량)가 항상 store에 저장된다.
 
 | 입력 모드 | 사용자 입력  | 저장되는 값                          | 변환 수식               |
 | --------- | ------------ | ------------------------------------ | ----------------------- |
 | base      | BTC/ETH 수량 | `amount = 입력값`                    | —                       |
-| quote     | EL$ 금액     | `amount = quoteInput / displayPrice` | `toFixed(baseDecimals)` |
+| quote     | ARB 금액     | `amount = quoteInput / displayPrice` | `toFixed(baseDecimals)` |
 
 ### 2.2 소수점 정책
 

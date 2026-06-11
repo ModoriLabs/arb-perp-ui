@@ -7,7 +7,7 @@
 
 const API_URL = process.env.API_URL || "http://localhost:3001"
 const ADMIN_KEY = process.env.ADMIN_SECRET || "changeme"
-const EL_ASSET_ID = 5382
+const ARB_ASSET_ID = 11841
 const MARKET = "BTC-PERP"
 const ORACLE_PRICE = 60000
 
@@ -53,7 +53,7 @@ async function deposit(cookies, amount) {
       Cookie: cookies,
       "X-Api-Key": ADMIN_KEY,
     },
-    body: JSON.stringify({ asset_id: EL_ASSET_ID, amount: String(amount) }),
+    body: JSON.stringify({ asset_id: ARB_ASSET_ID, amount: String(amount) }),
   })
   if (!res.ok) throw new Error(`Deposit failed: ${await res.text()}`)
 }
@@ -171,7 +171,7 @@ async function createBot(label, address, depositAmount, imf = 1000) {
   const cookies = await devToken(address)
   console.log(`  Token: OK`)
   await deposit(cookies, depositAmount)
-  console.log(`  Deposit: ${depositAmount} EL$`)
+  console.log(`  Deposit: ${depositAmount} ARB`)
   await setLeverage(cookies, imf)
   const leverage = 10000 / imf
   console.log(`  Leverage: ${leverage}x (IMF=${imf})`)
@@ -238,7 +238,7 @@ async function seedInsurance() {
   await placeOrder(mm1, "Short", 60200, 1.0)
 
   // Insurance Fund 입금
-  console.log("\n  Insurance Fund deposit: 10,000 EL$")
+  console.log("\n  Insurance Fund deposit: 10,000 ARB")
   await insuranceFundDeposit(10000)
 }
 

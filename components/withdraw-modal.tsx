@@ -42,7 +42,7 @@ export function WithdrawModal({
   address,
 }: WithdrawModalProps) {
   const [amount, setAmount] = useState("")
-  const [selectedAssetId, setSelectedAssetId] = useState<number>(ASSET_IDS.EL)
+  const [selectedAssetId, setSelectedAssetId] = useState<number>(ASSET_IDS.ARB)
   const setActiveTab = useHistoryTabStore((s) => s.setActiveTab)
 
   // --- Read: perp balance from API ---

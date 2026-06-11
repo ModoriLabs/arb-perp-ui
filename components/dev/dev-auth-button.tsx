@@ -75,7 +75,7 @@ export function DevAuthButton() {
         method: "POST",
         auth: true,
         body: {
-          asset_id: ASSET_IDS.EL,
+          asset_id: ASSET_IDS.ARB,
           amount,
           route_type: "perp",
         },

@@ -125,11 +125,6 @@ export function WithdrawalsTab({
                       {withdrawal.tx_hash ? (
                         <a
                           href={getExplorerTxUrl(
-                            // Withdrawal payload already carries
-                            // `asset_id`; map it to the chain that hosts
-                            // the asset. Avoids the old hard-coded
-                            // `sepolia.etherscan.io` link, which sent
-                            // ARB withdraws to the wrong explorer.
                             ASSET_ID_TO_CHAIN_ID[withdrawal.asset_id],
                             withdrawal.tx_hash
                           )}

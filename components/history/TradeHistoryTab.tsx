@@ -227,11 +227,10 @@ export function TradeHistoryTab({
   const accountIndex = useAccountStore((s) => s.account?.index ?? null)
   const pairs = useMarketStore((s) => s.pairs)
 
-  // Trade value / PnL / fee are denominated in the market's quote token
-  // (multi-token, ELP-133): EL$ for BTC-PERP, USDT for BTC-PERP-USDT.
+  // Trade value / PnL / fee are denominated in the market's quote token.
   const quoteSymbolFor = (market: string) => {
     const pair = pairs.find((p) => p.name === market)
-    return pair ? getAssetName(pair.quote_currency) : "EL$"
+    return pair ? getAssetName(pair.quote_currency) : "ARB"
   }
 
   const aggregated = isAggregated ? aggregateTrades(trades, accountIndex) : null

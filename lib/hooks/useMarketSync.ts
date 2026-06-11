@@ -39,7 +39,7 @@ export function useMarketSync() {
           maker_fee: market.maker_fee,
           quote:
             getAssetName(market.quote_currency) === "Unknown"
-              ? "EL$"
+              ? "ARB"
               : getAssetName(market.quote_currency),
           quote_scale_k: market.quote_scale_k,
           base_currency: market.base_currency,

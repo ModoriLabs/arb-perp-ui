@@ -35,12 +35,8 @@ export function ChartSection({
   dataSource?: "ws" | "rest"
 } = {}) {
   const pair = useSelectedPair()
-  // Collateral chip follows the *selected market*, not the global ecosystem
-  // browse filter. The two can diverge — e.g. user deep-links to
-  // /trade/BTC-PERP-ARB while the ecosystem store still says "elysia" —
-  // and when they do, the old code rendered "EL · Used as collateral"
-  // on an ARB-quoted chart. Derive the ecosystem from the market's
-  // server-authoritative `quote_currency` instead.
+  // Collateral chip follows the selected market's server-authoritative
+  // `quote_currency`, not the global ecosystem browse filter.
   const ecosystem = getEcosystemByQuoteAssetId(pair.quote_currency)
   const { data: orderBookDetailsData } = useOrderBookDetails()
   const [mobileTab, setMobileTab] = useState<MobileTab>("chart")

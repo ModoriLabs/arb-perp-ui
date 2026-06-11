@@ -9,13 +9,11 @@ import { parseUnits } from "viem"
 import { CONTRACTS } from "@/lib/contracts/addresses"
 import { getFeeOverrides } from "@/lib/contracts/gas"
 import { MockTokenAbi } from "@/lib/contracts/abi/MockTokenAbi"
-import { sepolia } from "viem/chains"
+import { arbitrumSepolia } from "viem/chains"
 
 /**
- * Mints a MockToken to a wallet. Defaults to the EL collateral token on
- * Sepolia; pass `token` to mint another collateral (multi-token, ELP-133)
- * and `chainId` to mint on a different chain (multi-chain, ELP-230, e.g.
- * MockARB on Arbitrum Sepolia).
+ * Mints a MockToken to a wallet. Defaults to the MockARB collateral
+ * token on Arbitrum Sepolia.
  *
  * `chainId` is also forwarded to the wagmi reads/writes so the hook works
  * even when the connected wallet is currently on a different network than
@@ -23,8 +21,8 @@ import { sepolia } from "viem/chains"
  * triggering `mint()`.
  */
 export function useMintToken(
-  token: `0x${string}` = CONTRACTS[sepolia.id].collateralToken,
-  chainId: number = sepolia.id
+  token: `0x${string}` = CONTRACTS[arbitrumSepolia.id].collateralToken,
+  chainId: number = arbitrumSepolia.id
 ) {
   const { mutate, data: hash, isPending, error, reset } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({

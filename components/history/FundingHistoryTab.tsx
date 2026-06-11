@@ -13,10 +13,10 @@ export function FundingHistoryTab({
 }) {
   const { data, isLoading } = useFundingHistory()
   const pairs = useMarketStore((s) => s.pairs)
-  // Funding is paid in the market's quote token (multi-token, ELP-133).
+  // Funding is paid in the market's quote token.
   const quoteSymbolFor = (market: string) => {
     const pair = pairs.find((p) => p.name === market)
-    return pair ? getAssetName(pair.quote_currency) : "EL$"
+    return pair ? getAssetName(pair.quote_currency) : "ARB"
   }
   const payments = useMemo(() => {
     const all = data?.funding_payments ?? []

@@ -33,6 +33,14 @@ export function AssetsTab() {
   // Positions carry their server-authoritative quote_asset_id directly.
   const openPositions = positions.filter((p) => parseFloat(p.size) !== 0)
 
+  // Only show balances for tokens we have display metadata for. The backend
+  // returns an entry per registered deposit token, including internal/unlisted
+  // ones that resolve to "Unknown"; those just clutter the table, so filter
+  // them out and render only recognized assets (e.g. ARB).
+  const visibleBalances = (balance?.balances ?? []).filter(
+    (b) => getAssetName(b.asset_id) !== "Unknown"
+  )
+
   const tokenTotalBalance = (assetId: number, available: number): number => {
     const tokenPositions = openPositions.filter(
       (p) => p.quote_asset_id === assetId
@@ -48,7 +56,7 @@ export function AssetsTab() {
 
   return (
     <div className="h-full overflow-x-scroll p-0">
-      {!balance?.balances || balance.balances.length === 0 ? (
+      {visibleBalances.length === 0 ? (
         <div className="h-full p-3">
           <div className="text-sm text-muted-foreground">
             No assets to display.
@@ -77,7 +85,7 @@ export function AssetsTab() {
               </tr>
             </thead>
             <tbody className="relative">
-              {balance.balances.map((asset, index) => {
+              {visibleBalances.map((asset, index) => {
                 const assetName = getAssetName(asset.asset_id)
                 const available = parseFloat(asset.available)
                 const totalBalance = tokenTotalBalance(

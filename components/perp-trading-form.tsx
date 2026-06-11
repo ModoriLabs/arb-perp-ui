@@ -59,8 +59,7 @@ export function PerpTradingForm() {
   const selectedPrice = useMarketStore((s) => s.selectedPrice)
 
   const baseCurrency = pair.base
-  // Quote/collateral token follows the active market (multi-token, ELP-133):
-  // BTC-PERP quotes in EL$, BTC-PERP-USDT quotes in USDT.
+  // Quote/collateral token follows the active market.
   const quoteCurrency = pair.quote
 
   // Derive decimal places from market scale_k (e.g. BTC: base=5, quote=1)
@@ -675,9 +674,9 @@ export function PerpTradingForm() {
                 className="pr-20 font-mono"
               />
               <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
-                <span className="text-xs text-muted-foreground">
-                  {quoteCurrency}
-                </span>
+                {/* Price is shown in USD terms, so the input is labeled USDT
+                    even though the market's settlement quote token is ARB. */}
+                <span className="text-xs text-muted-foreground">USDT</span>
               </div>
             </div>
           </div>

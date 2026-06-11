@@ -34,7 +34,7 @@ const { mainnet } = require("viem/chains")
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://elysia-perp-dev.up.railway.app"
-const PERP_USD_ID = 5382
+const PERP_USD_ID = 11841
 const DEPOSIT_AMOUNT = "1000000000000"
 
 // ─── CLI Args ──────────────────────────────────────────────────────────────────

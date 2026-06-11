@@ -6,7 +6,7 @@ import { useMarketStore } from "@/lib/stores/useMarketStore"
 import { tradingToast } from "@/lib/utils/toast"
 
 const LAST_MARKET_KEY = "ee.lastMarket"
-export const DEFAULT_MARKET = "BTC-PERP-EL"
+export const DEFAULT_MARKET = "BTC-PERP-ARB"
 
 /**
  * Read the last-visited market name from localStorage. Used by the root

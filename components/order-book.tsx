@@ -112,12 +112,8 @@ export function OrderBookView({
   // not the global ecosystem browse filter — those can diverge on URL deep
   // links and when the user changes the ecosystem sidebar without
   // selecting a market. Without this, the size column header would read
-  // "Size (EL$)" on an ARB-quoted orderbook.
-  //
   // `getAssetName` is the same source PositionsTab / TradingForm read
-  // from, so the symbol stays consistent across the page (EL: "EL$",
-  // ARB: "ARB", USDT: "USDT" — the `$` is part of asset 5382's
-  // canonical symbol metadata, not a manual suffix).
+  // from, so the symbol stays consistent across the page.
   const quoteSymbol = getAssetName(pair.quote_currency)
 
   // Dynamically calculate maxRows from container height

@@ -97,18 +97,12 @@ export function DepositsTab({
             <tbody className="relative">
               {deposits.map((deposit, index) => {
                 const status = getStatusDisplay(deposit.status)
-                // The deposit row tells us the *token contract address*
-                // and nothing about which chain it lives on. Search every
-                // registered collateral chain (Sepolia, Arbitrum Sepolia,
-                // …) for a match — the old single-chain lookup against
-                // `sepolia.id` silently rendered ARB deposits as "EL$"
-                // and pointed the tx link at the wrong block explorer.
                 const collateral = findCollateralByAddress(
                   deposit.token_address
                 )
                 const symbol = collateral
                   ? getAssetName(collateral.assetId)
-                  : "EL$"
+                  : "ARB"
 
                 return (
                   <tr

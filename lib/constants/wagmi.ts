@@ -1,6 +1,5 @@
 import { cookieStorage, createStorage } from "@wagmi/core"
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
-import { sepolia } from "@reown/appkit/networks"
 import { defineChain } from "viem"
 
 export const projectId = "4904537e8592e7bd77c13800298adf15"
@@ -39,14 +38,12 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   testnet: true,
 })
 
-// Order matters: AppKit treats `networks[0]` as the primary network for
-// SSR/cookie-state and the deposit flow's default wallet network is
-// Sepolia (EL/USDT collateral). Arbitrum Sepolia is added so users can
-// also deposit MockARB without a manual chain add in their wallet.
+// Arbitrum Sepolia only — the deposit/mint flow uses MockARB as the
+// single collateral rail.
 //
 // Typed as a mutable array (not `as const`) because WagmiAdapter and
 // AppKit expect `AppKitNetwork[]`.
-export const networks = [sepolia, arbitrumSepolia]
+export const networks = [arbitrumSepolia]
 
 //Set up the Wagmi Adapter (Config)
 export const wagmiAdapter = new WagmiAdapter({

@@ -104,7 +104,7 @@ export async function POST() {
 
     // 5. Deposit assets
     const depositAmount = 1000000000000
-    const PERP_USD_ID = 5382
+    const PERP_USD_ID = 11841
 
     const depositUrl = `${API_URL}/dev/account/deposit`
 

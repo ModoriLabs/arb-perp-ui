@@ -3,16 +3,16 @@ import { Pair } from "@/types"
 
 const DEFAULT_PAIR: Pair = {
   id: 100,
-  name: "BTC-PERP",
+  name: "BTC-PERP-ARB",
   market_type: "Perpetual",
   base: "BTC",
   base_scale_k: 100000,
   taker_fee: 0,
   maker_fee: 0,
-  quote: "EL$",
+  quote: "ARB",
   quote_scale_k: 100000,
   base_currency: 3762,
-  quote_currency: 5382,
+  quote_currency: 11841,
 }
 
 interface MarketState {

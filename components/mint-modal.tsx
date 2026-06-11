@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react"
 import { useChainId, useReadContract, useSwitchChain } from "wagmi"
-import { sepolia } from "viem/chains"
 import { formatUnits } from "viem"
 import {
   Dialog,
@@ -47,21 +46,12 @@ export function MintModal({ open, onOpenChange, address }: MintModalProps) {
     []
   )
 
-  // Default the picker to the *currently-traded market's* quote token,
-  // not a hardcoded EL fallback. Background: prior to this, opening Mint
-  // on a BTC-PERP-ARB chart with an Arbitrum-Sepolia wallet defaulted
-  // the picker to EL (Sepolia). Because the wallet was on the wrong
-  // chain for EL, the modal flipped into "Switch network & mint" mode —
-  // user clicks it expecting to mint ARB on the chain they're already
-  // on, but instead gets bounced to Sepolia and (if they confirm in the
-  // wallet) credited with EL they didn't ask for. The match-the-market
-  // default makes the common case (top up the collateral I'm trading)
-  // one-click, and only diverges from the wallet's chain when the user
-  // explicitly switches markets to a different collateral.
+  // Default the picker to the currently-traded market's quote token so
+  // the common "top up the collateral I'm trading" case is one-click.
   const pair = useSelectedPair()
   const initialAssetId = tokenIds.includes(pair.quote_currency)
     ? pair.quote_currency
-    : ASSET_IDS.EL
+    : ASSET_IDS.ARB
   const [selectedAssetId, setSelectedAssetId] = useState<number>(initialAssetId)
 
   // Re-sync the picker to the current market every time the modal opens.
@@ -72,7 +62,7 @@ export function MintModal({ open, onOpenChange, address }: MintModalProps) {
       setSelectedAssetId(
         tokenIds.includes(pair.quote_currency)
           ? pair.quote_currency
-          : ASSET_IDS.EL
+          : ASSET_IDS.ARB
       )
     }
   }, [open, pair.quote_currency, tokenIds])
@@ -91,7 +81,7 @@ export function MintModal({ open, onOpenChange, address }: MintModalProps) {
   const tokenAddress =
     getTokenAddress(targetChainId, selectedAssetId) ??
     COLLATERAL_TOKENS[targetChainId]?.[0]?.address ??
-    COLLATERAL_TOKENS[sepolia.id][0].address
+    Object.values(COLLATERAL_TOKENS)[0][0].address
   const tokenSymbol = getAssetName(selectedAssetId)
 
   const { mint, isPending, isConfirming, isSuccess, decimals, error, reset } =

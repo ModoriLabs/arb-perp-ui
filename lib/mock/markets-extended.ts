@@ -50,7 +50,6 @@ export const ECOSYSTEMS: Ecosystem[] = [
     collateralToken: "EL",
     color: "oklch(0.77 0.15 270)",
     logo: "/icons/collateral_logos/el.svg",
-    quoteAssetId: 5382,
   },
   {
     id: "usdt",
@@ -58,7 +57,6 @@ export const ECOSYSTEMS: Ecosystem[] = [
     collateralToken: "USDT",
     color: "oklch(0.75 0.13 165)",
     logo: "/icons/tokens/usdt.svg",
-    quoteAssetId: 825,
   },
   {
     id: "ethereum",
@@ -104,7 +102,7 @@ export const ECOSYSTEMS: Ecosystem[] = [
   },
 ]
 
-export const DEFAULT_ECOSYSTEM_ID = "elysia"
+export const DEFAULT_ECOSYSTEM_ID = "arbitrum"
 
 export function getEcosystemById(id: string): Ecosystem {
   return (
@@ -115,22 +113,11 @@ export function getEcosystemById(id: string): Ecosystem {
 }
 
 /**
- * Reverse lookup: find the ecosystem that *owns* a given quote asset_id.
+ * Reverse lookup: find the ecosystem that owns a given quote asset_id.
+ * Display strings like the "Used as collateral" chip follow the selected
+ * market's `quote_currency`, not the browse-filter ecosystem.
  *
- * The global ecosystem store (`useEcosystemStore`) is just a browse filter
- * for the market dropdown — it can diverge from the actually-selected
- * market (URL deep link to `/trade/BTC-PERP-ARB` while the ecosystem
- * store still says "elysia", or user picks ARB sidebar but closes the
- * dialog without choosing a market). Display strings like the
- * "Used as collateral" chip and the orderbook's quote-symbol column
- * header have to follow the *market*, not the browse filter — otherwise
- * a BTC-PERP-ARB chart reads "EL · Used as collateral" and the order
- * book column header reads "Size (EL$)" while every trade is actually
- * quoted in ARB.
- *
- * Falls back to the default ecosystem when no live rail is registered
- * for the asset — surfaces a sensible chip instead of crashing on
- * historical/exotic quote tokens.
+ * Falls back to the default ecosystem when no live rail is registered.
  */
 export function getEcosystemByQuoteAssetId(
   assetId: number | undefined

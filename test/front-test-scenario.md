@@ -2,14 +2,14 @@
 
 ## 공통 전제
 
-| 항목          | 값       |
-| ------------- | -------- |
-| 테스트 환경   | Staging  |
-| 마켓          | BTC-PERP |
-| 담보 토큰     | EL       |
-| 최소 입금액   | 1,000 EL |
-| 최소 주문액   | $1 USD   |
-| 레버리지 범위 | 1x ~ 20x |
+| 항목          | 값        |
+| ------------- | --------- |
+| 테스트 환경   | Staging   |
+| 마켓          | BTC-PERP  |
+| 담보 토큰     | ARB       |
+| 최소 입금액   | 1,000 ARB |
+| 최소 주문액   | $1 USD    |
+| 레버리지 범위 | 1x ~ 20x  |
 
 ## 사전 준비
 
@@ -29,13 +29,13 @@
 
 **조건**
 
-- 지갑에 1,000+ EL 보유 (온체인)
+- 지갑에 \1 ARB 보유 (온체인)
 
 **테스트 단계** (프론트엔드)
 
 - [ ] 지갑 연결
 - [ ] Deposit 버튼 클릭
-- [ ] 1,000 EL 입력
+- [ ] \1 ARB 입력
 - [ ] Approve 버튼 클릭 → MetaMask 승인
 - [ ] Deposit 버튼 클릭 → MetaMask 승인
 - [ ] 트랜잭션 확인 대기
@@ -43,7 +43,7 @@
 **기대 결과**
 
 - 모달이 닫힘
-- Available Balance에 1,000 EL$ 반영
+- Available Balance에 1,000 ARB 반영
 - Deposits 탭에 기록 추가
 
 **테스트 후 정리** (qa-test.http)
@@ -65,11 +65,11 @@
 **테스트 단계** (프론트엔드)
 
 - [ ] Deposit 버튼 클릭
-- [ ] 999 EL 입력
+- [ ] \1 ARB 입력
 
 **기대 결과**
 
-- "Minimum deposit is 1,000 EL" 에러 메시지 표시
+- "Minimum deposit is 1,000 ARB" 에러 메시지 표시
 - Deposit 버튼 비활성화
 
 **테스트 후 정리** (qa-test.http)
@@ -86,12 +86,12 @@
 
 **조건**
 
-- 지갑에 1,000 EL 보유
+- 지갑에 \1 ARB 보유
 
 **테스트 단계** (프론트엔드)
 
 - [ ] Deposit 버튼 클릭
-- [ ] 2,000 EL 입력 (보유량 초과)
+- [ ] \1 ARB 입력 (보유량 초과)
 
 **기대 결과**
 
@@ -117,20 +117,20 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 - 오픈 포지션 없음
 
 **테스트 단계** (프론트엔드)
 
 - [ ] Withdraw 버튼 클릭
-- [ ] 500 EL$ 입력
+- [ ] 500 ARB 입력
 - [ ] Withdraw 버튼 클릭
 - [ ] 출금 요청 확인
 
 **기대 결과**
 
 - 모달이 닫힘
-- Available Balance에서 500 EL$ 차감
+- Available Balance에서 500 ARB 차감
 - Withdrawals 탭에 Pending 상태로 기록 추가
 - 서버에서 출금 트랜잭션 날린 후 완료되면 상태가 Completed로 변경
 
@@ -151,12 +151,12 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 
 **테스트 단계** (프론트엔드)
 
 - [ ] Withdraw 버튼 클릭
-- [ ] 15,000 EL$ 입력 (Available 초과)
+- [ ] 15,000 ARB 입력 (Available 초과)
 
 **기대 결과**
 
@@ -182,7 +182,7 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 - 현재 BTC 가격: $60,000
 
 **테스트 단계** (프론트엔드)
@@ -217,7 +217,7 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 - 현재 BTC 가격: $60,000
 
 **테스트 단계** (프론트엔드)
@@ -250,7 +250,7 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 - Orderbook에 매도 호가 존재
 
 **테스트 단계** (프론트엔드)
@@ -283,7 +283,7 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 - Orderbook에 매수 호가 존재
 
 **테스트 단계** (프론트엔드)
@@ -318,7 +318,7 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 
 **테스트 단계** (프론트엔드)
 
@@ -350,7 +350,7 @@
 
 **조건**
 
-- Available Balance: 10,000 EL$
+- Available Balance: 10,000 ARB
 
 **테스트 단계** (프론트엔드)
 
@@ -381,7 +381,7 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 
 **테스트 단계** (프론트엔드)
 
@@ -446,7 +446,7 @@
 
 **조건**
 
-- Available Balance에 10,000 EL$ 보유
+- Available Balance에 10,000 ARB 보유
 - BTC-PERP 포지션 없음
 
 **테스트 단계** (프론트엔드)
@@ -680,7 +680,7 @@
 
 **사전 준비** (qa-test.http)
 
-- [ ] `npm run seed:insurance` 실행 (리셋 + 오라클 $60,000 + MM봇 Ask만 + IF 10,000 EL$)
+- [ ] `npm run seed:insurance` 실행 (리셋 + 오라클 $60,000 + MM봇 Ask만 + IF 10,000 ARB)
 
 **포지션 준비** (프론트엔드)
 
@@ -692,7 +692,7 @@
 
 - 테스트 계정: Long 0.1 BTC (20x)
 - Orderbook에 Bid 없음 (IOC 실패)
-- Insurance Fund에 10,000 EL$ 존재
+- Insurance Fund에 10,000 ARB 존재
 
 **테스트 단계**
 
@@ -1036,7 +1036,7 @@ npm run seed:funding        # Counter Short + MM봇 오더북
 #### orderbook - MM봇 오더북
 
 - Oracle BTC-PERP: $60,000
-- MM Bot 2명: 각 500,000 EL$ deposit, 양방향 호가 5단계
+- MM Bot 2명: 각 500,000 ARB deposit, 양방향 호가 5단계
 
 | Side        | Price   | Size    | User |
 | ----------- | ------- | ------- | ---- |
@@ -1106,7 +1106,7 @@ npm run seed:funding        # Counter Short + MM봇 오더북
 | Ask (Short) | $60,200 | 1.0 BTC |                                 |
 | Bid (Long)  | $59,900 | 0.5 BTC | ADL counter Market Short로 소진 |
 
-- Insurance Fund: **0 EL$** (고갈)
+- Insurance Fund: **0 ARB** (고갈)
 - ADL counter 결과: Short 0.5 BTC @ ~$59,900 (5x)
   - 오라클 $56,000 이동 시 unrealized PnL = +$1,950
 - 사용 테스트: 5-4
