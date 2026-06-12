@@ -2,7 +2,7 @@ import { cookieStorage, createStorage } from "@wagmi/core"
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
 import { defineChain } from "viem"
 
-export const projectId = "4904537e8592e7bd77c13800298adf15"
+export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID
 
 if (!projectId) {
   throw new Error("Project ID is not defined")
@@ -19,7 +19,7 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ["https://arb-sepolia.g.alchemy.com/v2/Cm9b86CxcTnfyKuiOCxDA"],
+      http: [process.env.NEXT_PUBLIC_ARB_RPC_URL || ""],
     },
   },
   blockExplorers: {
