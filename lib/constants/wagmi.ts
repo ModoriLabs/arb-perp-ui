@@ -2,11 +2,15 @@ import { cookieStorage, createStorage } from "@wagmi/core"
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
 import { defineChain } from "viem"
 
-export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID
+const rawProjectId = process.env.NEXT_PUBLIC_PROJECT_ID
 
-if (!projectId) {
+if (!rawProjectId) {
   throw new Error("Project ID is not defined")
 }
+
+// Narrowed to a definite string after the guard above so consumers
+// (Web3Provider) don't see `string | undefined`.
+export const projectId: string = rawProjectId
 
 export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   id: 421_614,
